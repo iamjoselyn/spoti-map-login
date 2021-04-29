@@ -4,15 +4,15 @@ const bcrypt = require('bcrypt')
 function initialize(passport, getUserByEmail, getUserById) {
     const authenticateUser = async (email, password, done) => {
 
-        //Buscamos el usuario por el email ingresado
+        //Search for the user by the email entered.
         const user = getUserByEmail(email)
 
-        //Si no existe usuario con el email ingresado, envia el siguiente mensage
+        //If there is no user with the email entered, send the following message.
         if (user == null) {
             return done(null, false, { message: 'No user with that email' })
         }
 
-        //Comparamos la contraseña ingresada con el del usuario del email, si coincide devolvemos el usuario, en caso contrario mostramos el mensage de error corespondiente
+        //Compare the password entered with that of the email user, if it matches we return the user, otherwise we show the corresponding error message.
         try {
             if (await bcrypt.compare(password, user.password)) {
                 return done(null, user)
