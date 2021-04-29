@@ -31,24 +31,29 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
 
+//Envia los datos de la pagina una vez se inicia session.
 app.get('/', checkAutenticated, (req, res) => {
     res.render('index.ejs', { name: req.user.name })
 })
 
+//Envia los datos de la pagina de login.
 app.get('/login', checkNotAutenticated, (req, res) => {
     res.render('login.ejs')
 })
 
+//Envia los datos de la pagina de registro.
 app.get('/register', checkNotAutenticated, (req, res) => {
     res.render('register.ejs')
 })
 
+//Evita que una vez la session esta iniciada no puedas ir a la pagina de login, en el caso de que no este iniciada, el usuario podra ingresar los datos.
 app.post('/login', checkNotAutenticated, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
 }))
 
+//Evita que una vez la session esta iniciada no puedas ir a la pagina de register, en el caso de que no este iniciada, almacena los datos del nuevo usuario.
 app.post('/register', checkNotAutenticated, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
@@ -65,11 +70,13 @@ app.post('/register', checkNotAutenticated, async (req, res) => {
     console.log(users)
 })
 
+//Cierra session y regresa a la pagina login.
 app.delete('/logout', (req, res, next) => {
     req.logOut()
     res.redirect('/login')
 })
 
+//Confirma que si la session esta iniciada continue desde el metodo que fue llamado.
 function checkAutenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next()
@@ -78,6 +85,7 @@ function checkAutenticated(req, res, next) {
     res.redirect('/login')
 }
 
+//Confirma que si la session esta iniciada continue desde el metodo que fue llamado.
 function checkNotAutenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return res.redirect('/')
